@@ -7,7 +7,9 @@ import (
 
 	"github.com/nhatthm/aferomock"
 	"github.com/spf13/afero"
+	"github.com/spf13/afero/mem"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func getTempSymlinkPath(file string) (string, error) {
@@ -320,6 +322,77 @@ func TestPerm_CouldNotStat(t *testing.T) {
 
 	mockT := new(testing.T)
 	assert.False(t, Perm(mockT, fs, ".github", 0644))
+}
+
+func TestFileContent_Success(t *testing.T) {
+	fs := afero.NewMemMapFs()
+
+	err := fs.MkdirAll(".github", 06444)
+	require.NoError(t, err)
+
+	f, err := fs.OpenFile(".github/file.txt", os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(0644))
+	require.NoError(t, err)
+
+	_, _ = f.WriteString("hello world!") // nolint: errcheck
+
+	mockT := new(testing.T)
+	assert.True(t, FileContent(mockT, fs, ".github/file.txt", "hello world!"))
+
+	mockT = new(testing.T)
+	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "wrong!"))
+}
+
+func TestFileContent_CouldNotStat(t *testing.T) {
+	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
+		fs.On("Stat", ".github/file.txt").
+			Return(nil, errors.New("stat error"))
+	})(t)
+
+	mockT := new(testing.T)
+	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "'"))
+}
+
+func TestFileContent_FileNotExists(t *testing.T) {
+	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
+		fs.On("Stat", ".github/file.txt").
+			Return(nil, os.ErrNotExist)
+	})(t)
+
+	mockT := new(testing.T)
+	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "'"))
+}
+
+func TestFileContent_CouldNotOpen(t *testing.T) {
+	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
+		fs.On("Stat", ".github/file.txt").
+			Return(aferomock.NewFileInfo(func(i *aferomock.FileInfo) {
+				i.On("IsDir").Return(false)
+			}), nil)
+
+		fs.On("Open", ".github/file.txt").
+			Return(nil, errors.New("open error"))
+	})(t)
+
+	mockT := new(testing.T)
+	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "'"))
+}
+
+func TestFileContent_FileIsClosed(t *testing.T) {
+	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
+		fs.On("Stat", ".github/file.txt").
+			Return(aferomock.NewFileInfo(func(i *aferomock.FileInfo) {
+				i.On("IsDir").Return(false)
+			}), nil)
+
+		f := mem.NewFileHandle(mem.CreateFile("file.txt"))
+		_ = f.Close() // nolint: errcheck
+
+		fs.On("Open", ".github/file.txt").
+			Return(f, nil)
+	})(t)
+
+	mockT := new(testing.T)
+	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestTreeEqual_Success(t *testing.T) {

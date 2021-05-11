@@ -1,7 +1,9 @@
 package aferoassert
 
 import (
+	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -162,6 +164,28 @@ func Perm(t TestingT, fs afero.Fs, path string, expected os.FileMode, msgAndArgs
 	}
 
 	return true
+}
+
+// FileContent checks whether a file content is as expected or not.
+func FileContent(t TestingT, fs afero.Fs, path string, expected string, msgAndArgs ...interface{}) bool {
+	if !FileExists(t, fs, path, msgAndArgs...) {
+		return false
+	}
+
+	f, err := fs.Open(path)
+	if err != nil {
+		return assert.Fail(t, fmt.Sprintf("could not open %q: %s", path, err), msgAndArgs...)
+	}
+
+	defer f.Close() // nolint: errcheck
+
+	buf := new(bytes.Buffer)
+
+	if _, err := io.Copy(buf, f); err != nil {
+		return assert.Fail(t, fmt.Sprintf("could not read %q: %s", path, err), msgAndArgs...)
+	}
+
+	return assert.Equal(t, expected, buf.String(), msgAndArgs...)
 }
 
 // TreeEqual checks whether a directory is the same as the expectation or not.
