@@ -301,7 +301,7 @@ func assertTree(t TestingT, fs afero.Fs, tree FileTree, root string, exhaustive 
 		return nil
 	})
 	if err != nil {
-		return fail("could not walk through %q: %w", root, err)
+		return fail("could not walk through %q: %s", root, err)
 	}
 
 	if !result {
