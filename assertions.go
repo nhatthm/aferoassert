@@ -144,6 +144,26 @@ func NoDirExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}
 	return assert.Fail(t, fmt.Sprintf("directory %q exists", path), msgAndArgs...)
 }
 
+// Perm checks whether a path has the expected permission or not.
+func Perm(t TestingT, fs afero.Fs, path string, expected os.FileMode, msgAndArgs ...interface{}) bool {
+	if h, ok := t.(tHelper); ok {
+		h.Helper()
+	}
+
+	info, err := stat(fs, path)
+	if err != nil {
+		return assert.Fail(t, fmt.Sprintf("error when running stat(%q): %s", path, err), msgAndArgs...)
+	}
+
+	actual := info.Mode() & os.ModePerm
+
+	if expected != actual {
+		return assert.Fail(t, fmt.Sprintf("%q permission is 0%o, expected 0%o", path, actual, expected), msgAndArgs...)
+	}
+
+	return true
+}
+
 // TreeEqual checks whether a directory is the same as the expectation or not.
 func TreeEqual(t TestingT, fs afero.Fs, tree FileTree, path string, msgAndArgs ...interface{}) bool {
 	if h, ok := t.(tHelper); ok {
@@ -257,7 +277,7 @@ func assertTree(t TestingT, fs afero.Fs, tree FileTree, root string, exhaustive 
 		return nil
 	})
 	if err != nil {
-		return fail("could not walk through %q", root)
+		return fail("could not walk through %q: %w", root, err)
 	}
 
 	if !result {

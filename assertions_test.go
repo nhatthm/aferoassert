@@ -300,6 +300,28 @@ func TestNoDirExists(t *testing.T) {
 	}
 }
 
+func TestPerm(t *testing.T) {
+	t.Parallel()
+
+	osFs := afero.NewOsFs()
+
+	mockT := new(testing.T)
+	assert.True(t, Perm(mockT, osFs, "assertions.go", 0644))
+
+	mockT = new(testing.T)
+	assert.False(t, Perm(mockT, osFs, "assertions.go", 0755))
+}
+
+func TestPerm_CouldNotStat(t *testing.T) {
+	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
+		fs.On("Stat", ".github").
+			Return(nil, errors.New("stat error"))
+	})(t)
+
+	mockT := new(testing.T)
+	assert.False(t, Perm(mockT, fs, ".github", 0644))
+}
+
 func TestTreeEqual_Success(t *testing.T) {
 	osFs := afero.NewOsFs()
 
