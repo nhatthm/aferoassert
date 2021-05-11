@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/afero"
@@ -238,6 +239,7 @@ func YAMLTreeContains(t TestingT, fs afero.Fs, expected, path string, msgAndArgs
 
 // nolint: funlen, cyclop
 func assertTree(t TestingT, fs afero.Fs, tree FileTree, root string, exhaustive bool, msgAndArgs ...interface{}) bool {
+	root = filepath.Clean(root)
 	expectations := tree.Flatten("")
 	result := true
 
