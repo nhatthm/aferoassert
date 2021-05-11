@@ -1,15 +1,14 @@
-# @nhatthm/{name}
+# Assert with spf13/afero
 
-<!--
-[![GitHub Releases](https://img.shields.io/github/v/release/nhatthm/{name})](https://github.com/nhatthm/{name}/releases/latest)
-[![Build Status](https://github.com/nhatthm/{name}/actions/workflows/test.yaml/badge.svg)](https://github.com/nhatthm/{name}/actions/workflows/test.yaml)
-[![codecov](https://codecov.io/gh/nhatthm/{name}/branch/master/graph/badge.svg?token=eTdAgDE2vR)](https://codecov.io/gh/nhatthm/{name})
-[![Go Report Card](https://goreportcard.com/badge/github.com/nhatthm/{name})](https://goreportcard.com/report/github.com/nhatthm/{name})
-[![GoDevDoc](https://img.shields.io/badge/dev-doc-00ADD8?logo=go)](https://pkg.go.dev/github.com/nhatthm/{name})
+[![GitHub Releases](https://img.shields.io/github/v/release/nhatthm/aferoassert)](https://github.com/nhatthm/aferoassert/releases/latest)
+[![Build Status](https://github.com/nhatthm/aferoassert/actions/workflows/test.yaml/badge.svg)](https://github.com/nhatthm/aferoassert/actions/workflows/test.yaml)
+[![codecov](https://codecov.io/gh/nhatthm/aferoassert/branch/master/graph/badge.svg?token=eTdAgDE2vR)](https://codecov.io/gh/nhatthm/aferoassert)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nhatthm/aferoassert)](https://goreportcard.com/report/github.com/nhatthm/aferoassert)
+[![GoDevDoc](https://img.shields.io/badge/dev-doc-00ADD8?logo=go)](https://pkg.go.dev/github.com/nhatthm/aferoassert)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=PJZSGJN57TDJY)
--->
 
-TBD
+The logic is shamelessly copy from [stretchr/testify/assert](https://github.com/stretchr/testify/tree/master/assert)
+with some salt and pepper.
 
 ## Prerequisites
 
@@ -18,16 +17,34 @@ TBD
 ## Install
 
 ```bash
-go get github.com/nhatthm/{name}
+go get github.com/nhatthm/aferoassert
 ```
 
 ## Usage
 
-TBD
+```go
+package mypackage_test
 
-## Examples
+import (
+	"testing"
 
-TBA
+	"github.com/nhatthm/aferoassert"
+	"github.com/spf13/afero"
+)
+
+func TestTreeEqual_Success(t *testing.T) {
+	osFs := afero.NewOsFs()
+
+	tree := `
+- workflows:
+    - golangci-lint.yaml
+    - test.yaml 'perm:"0644"'
+`
+
+	aferoassert.DirExists(t, osFs, ".github")
+	aferoassert.YAMLTreeEqual(t, osFs, tree, ".github")
+}
+```
 
 ## Donation
 
