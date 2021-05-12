@@ -3,6 +3,7 @@ package aferoassert
 import (
 	"errors"
 	"os"
+	"regexp"
 	"testing"
 
 	"github.com/nhatthm/aferomock"
@@ -393,6 +394,80 @@ func TestFileContent_FileIsClosed(t *testing.T) {
 
 	mockT := new(testing.T)
 	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "'"))
+}
+
+func TestFileContentRegexp_Success(t *testing.T) {
+	fs := afero.NewMemMapFs()
+
+	err := fs.MkdirAll(".github", 06444)
+	require.NoError(t, err)
+
+	f, err := fs.OpenFile(".github/file.txt", os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(0644))
+	require.NoError(t, err)
+
+	_, _ = f.WriteString("hello world!") // nolint: errcheck
+
+	mockT := new(testing.T)
+	assert.True(t, FileContentRegexp(mockT, fs, ".github/file.txt", "hello [^!]+!"))
+
+	mockT = new(testing.T)
+	assert.True(t, FileContentRegexp(mockT, fs, ".github/file.txt", regexp.MustCompile("hello [^!]+!")))
+
+	mockT = new(testing.T)
+	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "hello [^!]+$"))
+}
+
+func TestFileContentRegexp_CouldNotStat(t *testing.T) {
+	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
+		fs.On("Stat", ".github/file.txt").
+			Return(nil, errors.New("stat error"))
+	})(t)
+
+	mockT := new(testing.T)
+	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
+}
+
+func TestFileContentRegexp_FileNotExists(t *testing.T) {
+	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
+		fs.On("Stat", ".github/file.txt").
+			Return(nil, os.ErrNotExist)
+	})(t)
+
+	mockT := new(testing.T)
+	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
+}
+
+func TestFileContentRegexp_CouldNotOpen(t *testing.T) {
+	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
+		fs.On("Stat", ".github/file.txt").
+			Return(aferomock.NewFileInfo(func(i *aferomock.FileInfo) {
+				i.On("IsDir").Return(false)
+			}), nil)
+
+		fs.On("Open", ".github/file.txt").
+			Return(nil, errors.New("open error"))
+	})(t)
+
+	mockT := new(testing.T)
+	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
+}
+
+func TestFileContentRegexp_FileIsClosed(t *testing.T) {
+	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
+		fs.On("Stat", ".github/file.txt").
+			Return(aferomock.NewFileInfo(func(i *aferomock.FileInfo) {
+				i.On("IsDir").Return(false)
+			}), nil)
+
+		f := mem.NewFileHandle(mem.CreateFile("file.txt"))
+		_ = f.Close() // nolint: errcheck
+
+		fs.On("Open", ".github/file.txt").
+			Return(f, nil)
+	})(t)
+
+	mockT := new(testing.T)
+	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestTreeEqual_Success(t *testing.T) {

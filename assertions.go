@@ -189,6 +189,28 @@ func FileContent(t TestingT, fs afero.Fs, path string, expected string, msgAndAr
 	return assert.Equal(t, expected, buf.String(), msgAndArgs...)
 }
 
+// FileContentRegexp checks whether a file content matches the expectation or not.
+func FileContentRegexp(t TestingT, fs afero.Fs, path string, expected interface{}, msgAndArgs ...interface{}) bool {
+	if !FileExists(t, fs, path, msgAndArgs...) {
+		return false
+	}
+
+	f, err := fs.Open(path)
+	if err != nil {
+		return assert.Fail(t, fmt.Sprintf("could not open %q: %s", path, err), msgAndArgs...)
+	}
+
+	defer f.Close() // nolint: errcheck
+
+	buf := new(bytes.Buffer)
+
+	if _, err := io.Copy(buf, f); err != nil {
+		return assert.Fail(t, fmt.Sprintf("could not read %q: %s", path, err), msgAndArgs...)
+	}
+
+	return assert.Regexp(t, expected, buf.String(), msgAndArgs...)
+}
+
 // TreeEqual checks whether a directory is the same as the expectation or not.
 func TreeEqual(t TestingT, fs afero.Fs, tree FileTree, path string, msgAndArgs ...interface{}) bool {
 	if h, ok := t.(tHelper); ok {
