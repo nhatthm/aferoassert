@@ -309,10 +309,10 @@ func TestPerm(t *testing.T) {
 	osFs := afero.NewOsFs()
 
 	mockT := new(testing.T)
-	assert.True(t, Perm(mockT, osFs, "assertions.go", 0644))
+	assert.True(t, Perm(mockT, osFs, "assertions.go", 0o644))
 
 	mockT = new(testing.T)
-	assert.False(t, Perm(mockT, osFs, "assertions.go", 0755))
+	assert.False(t, Perm(mockT, osFs, "assertions.go", 0o755))
 }
 
 func TestPerm_CouldNotStat(t *testing.T) {
@@ -322,16 +322,16 @@ func TestPerm_CouldNotStat(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, Perm(mockT, fs, ".github", 0644))
+	assert.False(t, Perm(mockT, fs, ".github", 0o644))
 }
 
 func TestFileContent_Success(t *testing.T) {
 	fs := afero.NewMemMapFs()
 
-	err := fs.MkdirAll(".github", 06444)
+	err := fs.MkdirAll(".github", 0o6444)
 	require.NoError(t, err)
 
-	f, err := fs.OpenFile(".github/file.txt", os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(0644))
+	f, err := fs.OpenFile(".github/file.txt", os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(0o644))
 	require.NoError(t, err)
 
 	_, _ = f.WriteString("hello world!") // nolint: errcheck
@@ -399,10 +399,10 @@ func TestFileContent_FileIsClosed(t *testing.T) {
 func TestFileContentRegexp_Success(t *testing.T) {
 	fs := afero.NewMemMapFs()
 
-	err := fs.MkdirAll(".github", 06444)
+	err := fs.MkdirAll(".github", 0o644)
 	require.NoError(t, err)
 
-	f, err := fs.OpenFile(".github/file.txt", os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(0644))
+	f, err := fs.OpenFile(".github/file.txt", os.O_CREATE|os.O_RDWR|os.O_TRUNC, os.FileMode(0o644))
 	require.NoError(t, err)
 
 	_, _ = f.WriteString("hello world!") // nolint: errcheck

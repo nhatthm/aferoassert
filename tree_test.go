@@ -36,7 +36,7 @@ func TestFileTree_Flatten(t *testing.T) {
 				"file 2": {
 					Name: "file 2",
 					Tags: FileModeTags{
-						"perm": FileModeFromUint64(0755),
+						"perm": FileModeFromUint64(0o755),
 					},
 				},
 				"folder 3": {
@@ -44,7 +44,7 @@ func TestFileTree_Flatten(t *testing.T) {
 					isDir: true,
 					Tags: FileModeTags{
 						"mode": FileModePtr(os.ModeDir | os.ModeSticky),
-						"perm": FileModeFromUint64(0644),
+						"perm": FileModeFromUint64(0o644),
 					},
 					Children: FileTree{
 						"file 3": {Name: "file 3"},
@@ -57,7 +57,7 @@ func TestFileTree_Flatten(t *testing.T) {
 		"folder 2/file 2": {
 			Name: "file 2",
 			Tags: FileModeTags{
-				"perm": FileModeFromUint64(0755),
+				"perm": FileModeFromUint64(0o755),
 			},
 		},
 		"folder 2/folder 3": {
@@ -65,7 +65,7 @@ func TestFileTree_Flatten(t *testing.T) {
 			isDir: true,
 			Tags: FileModeTags{
 				"mode": FileModePtr(os.ModeDir | os.ModeSticky),
-				"perm": FileModeFromUint64(0644),
+				"perm": FileModeFromUint64(0o644),
 			},
 			Children: FileTree{
 				"file 3": {Name: "file 3"},
@@ -210,7 +210,7 @@ file 2:
 						"file 2": {
 							Name: "file 2",
 							Tags: FileModeTags{
-								"perm": FileModeFromUint64(0755),
+								"perm": FileModeFromUint64(0o755),
 							},
 						},
 						"folder 3": {
@@ -218,7 +218,7 @@ file 2:
 							isDir: true,
 							Tags: FileModeTags{
 								"type": FileModePtr(os.ModeDir | os.ModeSticky),
-								"perm": FileModeFromUint64(0644),
+								"perm": FileModeFromUint64(0o644),
 							},
 							Children: FileTree{
 								"file 3": {Name: "file 3"},
