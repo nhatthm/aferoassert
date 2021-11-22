@@ -477,6 +477,7 @@ func TestTreeEqual_Success(t *testing.T) {
 - workflows 'mode:"Dir"':
     - golangci-lint.yaml
     - test.yaml 'perm:"0644"'
+- dependabot.yml
 `
 
 	mockT := new(testing.T)
@@ -609,6 +610,7 @@ func TestTreeContains_Fail_DirIsExpected(t *testing.T) {
 	tree := `
 - workflows:
     - test.yaml:
+- dependabot.yml
 `
 
 	mockT := new(testing.T)
