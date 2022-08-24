@@ -1,4 +1,4 @@
-module github.com/nhatthm/aferoassert
+module go.nhat.io/aferoassert
 
 go 1.17
 

@@ -3,8 +3,8 @@
 [![GitHub Releases](https://img.shields.io/github/v/release/nhatthm/aferoassert)](https://github.com/nhatthm/aferoassert/releases/latest)
 [![Build Status](https://github.com/nhatthm/aferoassert/actions/workflows/test.yaml/badge.svg)](https://github.com/nhatthm/aferoassert/actions/workflows/test.yaml)
 [![codecov](https://codecov.io/gh/nhatthm/aferoassert/branch/master/graph/badge.svg?token=eTdAgDE2vR)](https://codecov.io/gh/nhatthm/aferoassert)
-[![Go Report Card](https://goreportcard.com/badge/github.com/nhatthm/aferoassert)](https://goreportcard.com/report/github.com/nhatthm/aferoassert)
-[![GoDevDoc](https://img.shields.io/badge/dev-doc-00ADD8?logo=go)](https://pkg.go.dev/github.com/nhatthm/aferoassert)
+[![Go Report Card](https://goreportcard.com/badge/go.nhat.io/aferoassert)](https://goreportcard.com/report/go.nhat.io/aferoassert)
+[![GoDevDoc](https://img.shields.io/badge/dev-doc-00ADD8?logo=go)](https://pkg.go.dev/go.nhat.io/aferoassert)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/donate/?hosted_button_id=PJZSGJN57TDJY)
 
 The logic is shamelessly copy from [stretchr/testify/assert](https://github.com/stretchr/testify/tree/master/assert)
@@ -12,12 +12,12 @@ with some salt and pepper.
 
 ## Prerequisites
 
-- `Go >= 1.16`
+- `Go >= 1.17`
 
 ## Install
 
 ```bash
-go get github.com/nhatthm/aferoassert
+go get go.nhat.io/aferoassert
 ```
 
 ## Usage
@@ -28,8 +28,8 @@ package mypackage_test
 import (
 	"testing"
 
-	"github.com/nhatthm/aferoassert"
 	"github.com/spf13/afero"
+	"go.nhat.io/aferoassert"
 )
 
 func TestTreeEqual_Success(t *testing.T) {
