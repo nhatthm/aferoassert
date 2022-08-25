@@ -477,6 +477,7 @@ func TestTreeEqual_Success(t *testing.T) {
 - workflows 'mode:"Dir"':
     - lint.yaml
     - test.yaml 'perm:"0644"'
+    - update-registry.yaml
 - dependabot.yml
 `
 
@@ -524,6 +525,7 @@ func TestTreeEqual_Fail_ExpectMoreFiles(t *testing.T) {
 - workflows 'mode:"Dir"':
     - lint.yaml
     - test.yaml 'perm:"0644"'
+    - update-registry.yaml
     - unknown
 `
 
@@ -538,6 +540,7 @@ func TestTreeContains_Success(t *testing.T) {
 - workflows 'mode:"Dir"':
     - lint.yaml
     - test.yaml 'perm:"0644"'
+    - update-registry.yaml
 `
 
 	mockT := new(testing.T)
@@ -560,6 +563,7 @@ func TestTreeContains_Fail_ExpectMoreFiles(t *testing.T) {
 - workflows 'mode:"Dir"':
     - lint.yaml
     - test.yaml 'perm:"0644"'
+    - update-registry.yaml
     - unknown
 `
 
@@ -574,6 +578,7 @@ func TestTreeContains_Fail_WrongMode(t *testing.T) {
 - workflows 'mode:"Dir|Temporary"':
     - lint.yaml
     - test.yaml
+    - update-registry.yaml
     - unknown
 `
 
@@ -588,6 +593,7 @@ func TestTreeContains_Fail_WrongPerm(t *testing.T) {
 - workflows 'mode:"Dir"':
     - lint.yaml
     - test.yaml 'perm:"0755"'
+    - update-registry.yaml
     - unknown
 `
 
