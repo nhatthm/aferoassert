@@ -291,7 +291,7 @@ func assertTree(t TestingT, fs afero.Fs, tree FileTree, root string, exhaustive 
 			return nil
 		}
 
-		if expected.isDir {
+		if expected.IsDir {
 			if !info.IsDir() {
 				fail("%q is not a directory", path)
 

@@ -103,8 +103,7 @@ type FileNode struct {
 	Name     string
 	Tags     FileModeTags
 	Children FileTree
-
-	isDir bool
+	IsDir    bool
 }
 
 // Flatten converts the file tree to a flat map, key is the path to file.
@@ -131,7 +130,7 @@ func (n FileNode) MarshalYAML() (interface{}, error) { // nolint: unparam
 		_, _ = fmt.Fprintf(&nameBld, " '%s'", n.Tags.String())
 	}
 
-	if !n.isDir {
+	if !n.IsDir {
 		return nameBld.String(), nil
 	}
 
@@ -279,7 +278,7 @@ func unmarshalTags(node *yaml.Node, s string) (*FileModeTags, error) {
 }
 
 func unmarshalFolder(value *yaml.Node) (*FileNode, error) {
-	if len(value.Content) != 2 {
+	if len(value.Content) != 2 { //nolint: mnd
 		return nil, ErrInvalidFileTreeFormat
 	}
 
@@ -295,7 +294,7 @@ func unmarshalFolder(value *yaml.Node) (*FileNode, error) {
 	}
 
 	d.Children = dt
-	d.isDir = true
+	d.IsDir = true
 
 	return d, nil
 }
@@ -360,7 +359,7 @@ func FileModePtr(mode os.FileMode) *os.FileMode {
 
 // FileModeFromUint64 returns *os.FileMode from an uint64.
 func FileModeFromUint64(mode uint64) *os.FileMode {
-	result := os.FileMode(mode)
+	result := os.FileMode(mode) //nolint: gosec
 
 	return &result
 }
