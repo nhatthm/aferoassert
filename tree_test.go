@@ -1,4 +1,4 @@
-package aferoassert
+package aferoassert_test
 
 import (
 	"os"
@@ -7,6 +7,8 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"gopkg.in/yaml.v3"
+
+	"go.nhat.io/aferoassert"
 )
 
 func TestFileTree_Flatten(t *testing.T) {
@@ -22,58 +24,58 @@ func TestFileTree_Flatten(t *testing.T) {
     - folder 4:
 `
 
-	var ft FileTree
+	var ft aferoassert.FileTree
 
 	err := yaml.Unmarshal([]byte(text), &ft)
 	require.NoError(t, err)
 
-	expected := map[string]FileNode{
+	expected := map[string]aferoassert.FileNode{
 		"file 1": {Name: "file 1"},
 		"folder 2": {
 			Name:  "folder 2",
-			isDir: true,
-			Children: FileTree{
+			IsDir: true,
+			Children: aferoassert.FileTree{
 				"file 2": {
 					Name: "file 2",
-					Tags: FileModeTags{
-						"perm": FileModeFromUint64(0o755),
+					Tags: aferoassert.FileModeTags{
+						"perm": aferoassert.FileModeFromUint64(0o755),
 					},
 				},
 				"folder 3": {
 					Name:  "folder 3",
-					isDir: true,
-					Tags: FileModeTags{
-						"mode": FileModePtr(os.ModeDir | os.ModeSticky),
-						"perm": FileModeFromUint64(0o644),
+					IsDir: true,
+					Tags: aferoassert.FileModeTags{
+						"mode": aferoassert.FileModePtr(os.ModeDir | os.ModeSticky),
+						"perm": aferoassert.FileModeFromUint64(0o644),
 					},
-					Children: FileTree{
+					Children: aferoassert.FileTree{
 						"file 3": {Name: "file 3"},
 					},
 				},
 				"file 4":   {Name: "file 4"},
-				"folder 4": {Name: "folder 4", isDir: true},
+				"folder 4": {Name: "folder 4", IsDir: true},
 			},
 		},
 		"folder 2/file 2": {
 			Name: "file 2",
-			Tags: FileModeTags{
-				"perm": FileModeFromUint64(0o755),
+			Tags: aferoassert.FileModeTags{
+				"perm": aferoassert.FileModeFromUint64(0o755),
 			},
 		},
 		"folder 2/folder 3": {
 			Name:  "folder 3",
-			isDir: true,
-			Tags: FileModeTags{
-				"mode": FileModePtr(os.ModeDir | os.ModeSticky),
-				"perm": FileModeFromUint64(0o644),
+			IsDir: true,
+			Tags: aferoassert.FileModeTags{
+				"mode": aferoassert.FileModePtr(os.ModeDir | os.ModeSticky),
+				"perm": aferoassert.FileModeFromUint64(0o644),
 			},
-			Children: FileTree{
+			Children: aferoassert.FileTree{
 				"file 3": {Name: "file 3"},
 			},
 		},
 		"folder 2/folder 3/file 3": {Name: "file 3"},
 		"folder 2/file 4":          {Name: "file 4"},
-		"folder 2/folder 4":        {Name: "folder 4", isDir: true},
+		"folder 2/folder 4":        {Name: "folder 4", IsDir: true},
 	}
 
 	assert.Equal(t, expected, ft.Flatten(""))
@@ -92,7 +94,7 @@ func TestNode_Serde(t *testing.T) {
     - folder 4 'mode:"Dir|Temporary"':
 `
 
-	var ft FileTree
+	var ft aferoassert.FileTree
 
 	err := yaml.Unmarshal([]byte(text), &ft)
 	require.NoError(t, err)
@@ -118,7 +120,7 @@ func TestNode_UnmarshalYAML(t *testing.T) {
 	testCases := []struct {
 		scenario       string
 		text           string
-		expectedResult FileTree
+		expectedResult aferoassert.FileTree
 		expectedError  string
 	}{
 		{
@@ -201,31 +203,31 @@ file 2:
     - file 4
     - folder 4:
 `,
-			expectedResult: FileTree{
+			expectedResult: aferoassert.FileTree{
 				"file 1": {Name: "file 1"},
 				"folder 2": {
 					Name:  "folder 2",
-					isDir: true,
-					Children: FileTree{
+					IsDir: true,
+					Children: aferoassert.FileTree{
 						"file 2": {
 							Name: "file 2",
-							Tags: FileModeTags{
-								"perm": FileModeFromUint64(0o755),
+							Tags: aferoassert.FileModeTags{
+								"perm": aferoassert.FileModeFromUint64(0o755),
 							},
 						},
 						"folder 3": {
 							Name:  "folder 3",
-							isDir: true,
-							Tags: FileModeTags{
-								"type": FileModePtr(os.ModeDir | os.ModeSticky),
-								"perm": FileModeFromUint64(0o644),
+							IsDir: true,
+							Tags: aferoassert.FileModeTags{
+								"type": aferoassert.FileModePtr(os.ModeDir | os.ModeSticky),
+								"perm": aferoassert.FileModeFromUint64(0o644),
 							},
-							Children: FileTree{
+							Children: aferoassert.FileTree{
 								"file 3": {Name: "file 3"},
 							},
 						},
 						"file 4":   {Name: "file 4"},
-						"folder 4": {Name: "folder 4", isDir: true},
+						"folder 4": {Name: "folder 4", IsDir: true},
 					},
 				},
 			},
@@ -237,7 +239,7 @@ file 2:
 		t.Run(tc.scenario, func(t *testing.T) {
 			t.Parallel()
 
-			var ft FileTree
+			var ft aferoassert.FileTree
 
 			err := yaml.Unmarshal([]byte(tc.text), &ft)
 

@@ -1,4 +1,4 @@
-package aferoassert
+package aferoassert_test
 
 import (
 	"errors"
@@ -6,11 +6,13 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/nhatthm/aferomock"
 	"github.com/spf13/afero"
 	"github.com/spf13/afero/mem"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"go.nhat.io/aferomock"
+
+	"go.nhat.io/aferoassert"
 )
 
 func getTempSymlinkPath(file string) (string, error) {
@@ -37,13 +39,13 @@ func TestExists(t *testing.T) {
 	osFs := afero.NewOsFs()
 
 	mockT := new(testing.T)
-	assert.True(t, Exists(mockT, osFs, "assertions.go"))
+	assert.True(t, aferoassert.Exists(mockT, osFs, "assertions.go"))
 
 	mockT = new(testing.T)
-	assert.False(t, Exists(mockT, osFs, "random_file"))
+	assert.False(t, aferoassert.Exists(mockT, osFs, "random_file"))
 
 	mockT = new(testing.T)
-	assert.True(t, Exists(mockT, osFs, ".github"))
+	assert.True(t, aferoassert.Exists(mockT, osFs, ".github"))
 
 	var tempFiles []string
 
@@ -54,7 +56,7 @@ func TestExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.True(t, Exists(mockT, osFs, link))
+	assert.True(t, aferoassert.Exists(mockT, osFs, link))
 
 	link, err = getTempSymlinkPath("non_existent_file")
 	if err != nil {
@@ -64,7 +66,7 @@ func TestExists(t *testing.T) {
 	tempFiles = append(tempFiles, link)
 
 	mockT = new(testing.T)
-	assert.True(t, Exists(mockT, osFs, link))
+	assert.True(t, aferoassert.Exists(mockT, osFs, link))
 
 	errs := cleanUpTempFiles(tempFiles)
 	if len(errs) > 0 {
@@ -79,20 +81,20 @@ func TestExists_CouldNotStat(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, Exists(mockT, fs, ".github"))
+	assert.False(t, aferoassert.Exists(mockT, fs, ".github"))
 }
 
 func TestNoExists(t *testing.T) {
 	osFs := afero.NewOsFs()
 
 	mockT := new(testing.T)
-	assert.False(t, NoExists(mockT, osFs, "assertions.go"))
+	assert.False(t, aferoassert.NoExists(mockT, osFs, "assertions.go"))
 
 	mockT = new(testing.T)
-	assert.True(t, NoExists(mockT, osFs, "non_existent_file"))
+	assert.True(t, aferoassert.NoExists(mockT, osFs, "non_existent_file"))
 
 	mockT = new(testing.T)
-	assert.False(t, NoExists(mockT, osFs, ".github"))
+	assert.False(t, aferoassert.NoExists(mockT, osFs, ".github"))
 
 	var tempFiles []string
 
@@ -103,7 +105,7 @@ func TestNoExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.False(t, NoExists(mockT, osFs, link))
+	assert.False(t, aferoassert.NoExists(mockT, osFs, link))
 
 	link, err = getTempSymlinkPath("non_existent_file")
 	if err != nil {
@@ -112,7 +114,7 @@ func TestNoExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.False(t, NoExists(mockT, osFs, link))
+	assert.False(t, aferoassert.NoExists(mockT, osFs, link))
 
 	errs := cleanUpTempFiles(tempFiles)
 	if len(errs) > 0 {
@@ -127,20 +129,20 @@ func TestNoExists_CouldNotStat(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.True(t, NoExists(mockT, fs, ".github"))
+	assert.True(t, aferoassert.NoExists(mockT, fs, ".github"))
 }
 
 func TestFileExists(t *testing.T) {
 	osFs := afero.NewOsFs()
 
 	mockT := new(testing.T)
-	assert.True(t, FileExists(mockT, osFs, "assertions.go"))
+	assert.True(t, aferoassert.FileExists(mockT, osFs, "assertions.go"))
 
 	mockT = new(testing.T)
-	assert.False(t, FileExists(mockT, osFs, "random_file"))
+	assert.False(t, aferoassert.FileExists(mockT, osFs, "random_file"))
 
 	mockT = new(testing.T)
-	assert.False(t, FileExists(mockT, osFs, ".github"))
+	assert.False(t, aferoassert.FileExists(mockT, osFs, ".github"))
 
 	var tempFiles []string
 
@@ -151,7 +153,7 @@ func TestFileExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.True(t, FileExists(mockT, osFs, link))
+	assert.True(t, aferoassert.FileExists(mockT, osFs, link))
 
 	link, err = getTempSymlinkPath("non_existent_file")
 	if err != nil {
@@ -161,7 +163,7 @@ func TestFileExists(t *testing.T) {
 	tempFiles = append(tempFiles, link)
 
 	mockT = new(testing.T)
-	assert.True(t, FileExists(mockT, osFs, link))
+	assert.True(t, aferoassert.FileExists(mockT, osFs, link))
 
 	errs := cleanUpTempFiles(tempFiles)
 	if len(errs) > 0 {
@@ -176,20 +178,20 @@ func TestFileExists_CouldNotStat(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, FileExists(mockT, fs, ".github"))
+	assert.False(t, aferoassert.FileExists(mockT, fs, ".github"))
 }
 
 func TestNoFileExists(t *testing.T) {
 	osFs := afero.NewOsFs()
 
 	mockT := new(testing.T)
-	assert.False(t, NoFileExists(mockT, osFs, "assertions.go"))
+	assert.False(t, aferoassert.NoFileExists(mockT, osFs, "assertions.go"))
 
 	mockT = new(testing.T)
-	assert.True(t, NoFileExists(mockT, osFs, "non_existent_file"))
+	assert.True(t, aferoassert.NoFileExists(mockT, osFs, "non_existent_file"))
 
 	mockT = new(testing.T)
-	assert.True(t, NoFileExists(mockT, osFs, ".github"))
+	assert.True(t, aferoassert.NoFileExists(mockT, osFs, ".github"))
 
 	var tempFiles []string
 
@@ -200,7 +202,7 @@ func TestNoFileExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.False(t, NoFileExists(mockT, osFs, link))
+	assert.False(t, aferoassert.NoFileExists(mockT, osFs, link))
 
 	link, err = getTempSymlinkPath("non_existent_file")
 	if err != nil {
@@ -209,7 +211,7 @@ func TestNoFileExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.False(t, NoFileExists(mockT, osFs, link))
+	assert.False(t, aferoassert.NoFileExists(mockT, osFs, link))
 
 	errs := cleanUpTempFiles(tempFiles)
 	if len(errs) > 0 {
@@ -221,13 +223,13 @@ func TestDirExists(t *testing.T) {
 	osFs := afero.NewOsFs()
 
 	mockT := new(testing.T)
-	assert.False(t, DirExists(mockT, osFs, "assertions.go"))
+	assert.False(t, aferoassert.DirExists(mockT, osFs, "assertions.go"))
 
 	mockT = new(testing.T)
-	assert.False(t, DirExists(mockT, osFs, "non_existent_dir"))
+	assert.False(t, aferoassert.DirExists(mockT, osFs, "non_existent_dir"))
 
 	mockT = new(testing.T)
-	assert.True(t, DirExists(mockT, osFs, ".github"))
+	assert.True(t, aferoassert.DirExists(mockT, osFs, ".github"))
 
 	var tempFiles []string
 
@@ -238,7 +240,7 @@ func TestDirExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.False(t, DirExists(mockT, osFs, link))
+	assert.False(t, aferoassert.DirExists(mockT, osFs, link))
 
 	link, err = getTempSymlinkPath("non_existent_dir")
 	if err != nil {
@@ -247,7 +249,7 @@ func TestDirExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.False(t, DirExists(mockT, osFs, link))
+	assert.False(t, aferoassert.DirExists(mockT, osFs, link))
 
 	errs := cleanUpTempFiles(tempFiles)
 	if len(errs) > 0 {
@@ -262,20 +264,20 @@ func TestDirExists_CouldNotStat(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, DirExists(mockT, fs, ".github"))
+	assert.False(t, aferoassert.DirExists(mockT, fs, ".github"))
 }
 
 func TestNoDirExists(t *testing.T) {
 	osFs := afero.NewOsFs()
 
 	mockT := new(testing.T)
-	assert.True(t, NoDirExists(mockT, osFs, "assertions.go"))
+	assert.True(t, aferoassert.NoDirExists(mockT, osFs, "assertions.go"))
 
 	mockT = new(testing.T)
-	assert.True(t, NoDirExists(mockT, osFs, "non_existent_dir"))
+	assert.True(t, aferoassert.NoDirExists(mockT, osFs, "non_existent_dir"))
 
 	mockT = new(testing.T)
-	assert.False(t, NoDirExists(mockT, osFs, ".github"))
+	assert.False(t, aferoassert.NoDirExists(mockT, osFs, ".github"))
 
 	var tempFiles []string
 
@@ -286,7 +288,7 @@ func TestNoDirExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.True(t, NoDirExists(mockT, osFs, link))
+	assert.True(t, aferoassert.NoDirExists(mockT, osFs, link))
 
 	link, err = getTempSymlinkPath("non_existent_dir")
 	if err != nil {
@@ -295,7 +297,7 @@ func TestNoDirExists(t *testing.T) {
 
 	tempFiles = append(tempFiles, link)
 	mockT = new(testing.T)
-	assert.True(t, NoDirExists(mockT, osFs, link))
+	assert.True(t, aferoassert.NoDirExists(mockT, osFs, link))
 
 	errs := cleanUpTempFiles(tempFiles)
 	if len(errs) > 0 {
@@ -309,10 +311,10 @@ func TestPerm(t *testing.T) {
 	osFs := afero.NewOsFs()
 
 	mockT := new(testing.T)
-	assert.True(t, Perm(mockT, osFs, "assertions.go", 0o644))
+	assert.True(t, aferoassert.Perm(mockT, osFs, "assertions.go", 0o644))
 
 	mockT = new(testing.T)
-	assert.False(t, Perm(mockT, osFs, "assertions.go", 0o755))
+	assert.False(t, aferoassert.Perm(mockT, osFs, "assertions.go", 0o755))
 }
 
 func TestPerm_CouldNotStat(t *testing.T) {
@@ -322,7 +324,7 @@ func TestPerm_CouldNotStat(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, Perm(mockT, fs, ".github", 0o644))
+	assert.False(t, aferoassert.Perm(mockT, fs, ".github", 0o644))
 }
 
 func TestFileContent_Success(t *testing.T) {
@@ -337,10 +339,10 @@ func TestFileContent_Success(t *testing.T) {
 	_, _ = f.WriteString("hello world!") // nolint: errcheck
 
 	mockT := new(testing.T)
-	assert.True(t, FileContent(mockT, fs, ".github/file.txt", "hello world!"))
+	assert.True(t, aferoassert.FileContent(mockT, fs, ".github/file.txt", "hello world!"))
 
 	mockT = new(testing.T)
-	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "wrong!"))
+	assert.False(t, aferoassert.FileContent(mockT, fs, ".github/file.txt", "wrong!"))
 }
 
 func TestFileContent_CouldNotStat(t *testing.T) {
@@ -350,7 +352,7 @@ func TestFileContent_CouldNotStat(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "'"))
+	assert.False(t, aferoassert.FileContent(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestFileContent_FileNotExists(t *testing.T) {
@@ -360,7 +362,7 @@ func TestFileContent_FileNotExists(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "'"))
+	assert.False(t, aferoassert.FileContent(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestFileContent_CouldNotOpen(t *testing.T) {
@@ -375,7 +377,7 @@ func TestFileContent_CouldNotOpen(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "'"))
+	assert.False(t, aferoassert.FileContent(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestFileContent_FileIsClosed(t *testing.T) {
@@ -393,7 +395,7 @@ func TestFileContent_FileIsClosed(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, FileContent(mockT, fs, ".github/file.txt", "'"))
+	assert.False(t, aferoassert.FileContent(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestFileContentRegexp_Success(t *testing.T) {
@@ -408,13 +410,13 @@ func TestFileContentRegexp_Success(t *testing.T) {
 	_, _ = f.WriteString("hello world!") // nolint: errcheck
 
 	mockT := new(testing.T)
-	assert.True(t, FileContentRegexp(mockT, fs, ".github/file.txt", "hello [^!]+!"))
+	assert.True(t, aferoassert.FileContentRegexp(mockT, fs, ".github/file.txt", "hello [^!]+!"))
 
 	mockT = new(testing.T)
-	assert.True(t, FileContentRegexp(mockT, fs, ".github/file.txt", regexp.MustCompile("hello [^!]+!")))
+	assert.True(t, aferoassert.FileContentRegexp(mockT, fs, ".github/file.txt", regexp.MustCompile("hello [^!]+!")))
 
 	mockT = new(testing.T)
-	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "hello [^!]+$"))
+	assert.False(t, aferoassert.FileContentRegexp(mockT, fs, ".github/file.txt", "hello [^!]+$"))
 }
 
 func TestFileContentRegexp_CouldNotStat(t *testing.T) {
@@ -424,7 +426,7 @@ func TestFileContentRegexp_CouldNotStat(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
+	assert.False(t, aferoassert.FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestFileContentRegexp_FileNotExists(t *testing.T) {
@@ -434,7 +436,7 @@ func TestFileContentRegexp_FileNotExists(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
+	assert.False(t, aferoassert.FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestFileContentRegexp_CouldNotOpen(t *testing.T) {
@@ -449,7 +451,7 @@ func TestFileContentRegexp_CouldNotOpen(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
+	assert.False(t, aferoassert.FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestFileContentRegexp_FileIsClosed(t *testing.T) {
@@ -467,7 +469,7 @@ func TestFileContentRegexp_FileIsClosed(t *testing.T) {
 	})(t)
 
 	mockT := new(testing.T)
-	assert.False(t, FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
+	assert.False(t, aferoassert.FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
 }
 
 func TestTreeEqual_Success(t *testing.T) {
@@ -482,7 +484,7 @@ func TestTreeEqual_Success(t *testing.T) {
 `
 
 	mockT := new(testing.T)
-	assert.True(t, YAMLTreeEqual(mockT, osFs, tree, ".github"))
+	assert.True(t, aferoassert.YAMLTreeEqual(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeEqual_Fail_CouldNotMarshal(t *testing.T) {
@@ -491,7 +493,7 @@ func TestTreeEqual_Fail_CouldNotMarshal(t *testing.T) {
 	tree := `invalid`
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeEqual(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeEqual(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeEqual_Fail_CouldNotWalk(t *testing.T) {
@@ -503,7 +505,7 @@ func TestTreeEqual_Fail_CouldNotWalk(t *testing.T) {
 	tree := `- workflows:`
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeEqual(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeEqual(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeEqual_Fail_MoreFilesThanExpected(t *testing.T) {
@@ -515,7 +517,7 @@ func TestTreeEqual_Fail_MoreFilesThanExpected(t *testing.T) {
 `
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeEqual(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeEqual(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeEqual_Fail_ExpectMoreFiles(t *testing.T) {
@@ -530,7 +532,7 @@ func TestTreeEqual_Fail_ExpectMoreFiles(t *testing.T) {
 `
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeEqual(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeEqual(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeContains_Success(t *testing.T) {
@@ -544,7 +546,7 @@ func TestTreeContains_Success(t *testing.T) {
 `
 
 	mockT := new(testing.T)
-	assert.True(t, YAMLTreeContains(mockT, osFs, tree, ".github"))
+	assert.True(t, aferoassert.YAMLTreeContains(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeContains_Fail_CouldNotMarshal(t *testing.T) {
@@ -553,7 +555,7 @@ func TestTreeContains_Fail_CouldNotMarshal(t *testing.T) {
 	tree := `invalid`
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeContains(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeContains(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeContains_Fail_ExpectMoreFiles(t *testing.T) {
@@ -568,7 +570,7 @@ func TestTreeContains_Fail_ExpectMoreFiles(t *testing.T) {
 `
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeContains(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeContains(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeContains_Fail_WrongMode(t *testing.T) {
@@ -583,7 +585,7 @@ func TestTreeContains_Fail_WrongMode(t *testing.T) {
 `
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeContains(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeContains(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeContains_Fail_WrongPerm(t *testing.T) {
@@ -598,7 +600,7 @@ func TestTreeContains_Fail_WrongPerm(t *testing.T) {
 `
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeContains(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeContains(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeContains_Fail_FileIsExpected(t *testing.T) {
@@ -607,7 +609,7 @@ func TestTreeContains_Fail_FileIsExpected(t *testing.T) {
 	tree := `- workflows`
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeContains(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeContains(mockT, osFs, tree, ".github"))
 }
 
 func TestTreeContains_Fail_DirIsExpected(t *testing.T) {
@@ -620,5 +622,5 @@ func TestTreeContains_Fail_DirIsExpected(t *testing.T) {
 `
 
 	mockT := new(testing.T)
-	assert.False(t, YAMLTreeContains(mockT, osFs, tree, ".github"))
+	assert.False(t, aferoassert.YAMLTreeContains(mockT, osFs, tree, ".github"))
 }
