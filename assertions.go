@@ -15,7 +15,7 @@ import (
 
 // TestingT is an interface wrapper around *testing.T.
 type TestingT interface {
-	Errorf(format string, args ...interface{})
+	Errorf(format string, args ...any)
 }
 
 type tHelper interface {
@@ -34,7 +34,7 @@ func stat(fs afero.Fs, path string) (os.FileInfo, error) {
 
 // Exists checks whether a file or directory exists in the given path. It also fails if there is an error when trying to
 // check the file.
-func Exists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}) bool {
+func Exists(t TestingT, fs afero.Fs, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -51,7 +51,7 @@ func Exists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}) boo
 }
 
 // NoExists checks whether a file does not exist in a given path.
-func NoExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}) bool {
+func NoExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -65,7 +65,7 @@ func NoExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}) b
 
 // FileExists checks whether a file exists in the given path. It also fails if
 // the path points to a directory or there is an error when trying to check the file.
-func FileExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}) bool {
+func FileExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -88,7 +88,7 @@ func FileExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{})
 
 // NoFileExists checks whether a file does not exist in a given path. It fails
 // if the path points to an existing _file_ only.
-func NoFileExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}) bool {
+func NoFileExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -107,7 +107,7 @@ func NoFileExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{
 
 // DirExists checks whether a directory exists in the given path. It also fails
 // if the path is a file rather a directory or there is an error checking whether it exists.
-func DirExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}) bool {
+func DirExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -130,7 +130,7 @@ func DirExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}) 
 
 // NoDirExists checks whether a directory does not exist in the given path.
 // It fails if the path points to an existing _directory_ only.
-func NoDirExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}) bool {
+func NoDirExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -148,7 +148,7 @@ func NoDirExists(t TestingT, fs afero.Fs, path string, msgAndArgs ...interface{}
 }
 
 // Perm checks whether a path has the expected permission or not.
-func Perm(t TestingT, fs afero.Fs, path string, expected os.FileMode, msgAndArgs ...interface{}) bool {
+func Perm(t TestingT, fs afero.Fs, path string, expected os.FileMode, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -168,51 +168,17 @@ func Perm(t TestingT, fs afero.Fs, path string, expected os.FileMode, msgAndArgs
 }
 
 // FileContent checks whether a file content is as expected or not.
-func FileContent(t TestingT, fs afero.Fs, path string, expected string, msgAndArgs ...interface{}) bool {
-	if !FileExists(t, fs, path, msgAndArgs...) {
-		return false
-	}
-
-	f, err := fs.Open(path)
-	if err != nil {
-		return assert.Fail(t, fmt.Sprintf("could not open %q: %s", path, err), msgAndArgs...)
-	}
-
-	defer f.Close() // nolint: errcheck
-
-	buf := new(bytes.Buffer)
-
-	if _, err := io.Copy(buf, f); err != nil {
-		return assert.Fail(t, fmt.Sprintf("could not read %q: %s", path, err), msgAndArgs...)
-	}
-
-	return assert.Equal(t, expected, buf.String(), msgAndArgs...)
+func FileContent(t TestingT, fs afero.Fs, path string, expected string, msgAndArgs ...any) bool {
+	return assertFileContent(t, fs, path, expected, msgAndArgs, assert.Equal)
 }
 
 // FileContentRegexp checks whether a file content matches the expectation or not.
-func FileContentRegexp(t TestingT, fs afero.Fs, path string, expected interface{}, msgAndArgs ...interface{}) bool {
-	if !FileExists(t, fs, path, msgAndArgs...) {
-		return false
-	}
-
-	f, err := fs.Open(path)
-	if err != nil {
-		return assert.Fail(t, fmt.Sprintf("could not open %q: %s", path, err), msgAndArgs...)
-	}
-
-	defer f.Close() // nolint: errcheck
-
-	buf := new(bytes.Buffer)
-
-	if _, err := io.Copy(buf, f); err != nil {
-		return assert.Fail(t, fmt.Sprintf("could not read %q: %s", path, err), msgAndArgs...)
-	}
-
-	return assert.Regexp(t, expected, buf.String(), msgAndArgs...)
+func FileContentRegexp(t TestingT, fs afero.Fs, path string, expected any, msgAndArgs ...any) bool {
+	return assertFileContent(t, fs, path, expected, msgAndArgs, assert.Regexp)
 }
 
 // TreeEqual checks whether a directory is the same as the expectation or not.
-func TreeEqual(t TestingT, fs afero.Fs, tree FileTree, path string, msgAndArgs ...interface{}) bool {
+func TreeEqual(t TestingT, fs afero.Fs, tree FileTree, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -221,7 +187,7 @@ func TreeEqual(t TestingT, fs afero.Fs, tree FileTree, path string, msgAndArgs .
 }
 
 // YAMLTreeEqual checks whether a directory is the same as the expectation or not.
-func YAMLTreeEqual(t TestingT, fs afero.Fs, expected, path string, msgAndArgs ...interface{}) bool {
+func YAMLTreeEqual(t TestingT, fs afero.Fs, expected, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -236,7 +202,7 @@ func YAMLTreeEqual(t TestingT, fs afero.Fs, expected, path string, msgAndArgs ..
 }
 
 // TreeContains checks whether a directory contains a file tree or not.
-func TreeContains(t TestingT, fs afero.Fs, tree FileTree, path string, msgAndArgs ...interface{}) bool {
+func TreeContains(t TestingT, fs afero.Fs, tree FileTree, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -245,7 +211,7 @@ func TreeContains(t TestingT, fs afero.Fs, tree FileTree, path string, msgAndArg
 }
 
 // YAMLTreeContains checks whether a directory contains a file tree or not.
-func YAMLTreeContains(t TestingT, fs afero.Fs, expected, path string, msgAndArgs ...interface{}) bool {
+func YAMLTreeContains(t TestingT, fs afero.Fs, expected, path string, msgAndArgs ...any) bool {
 	if h, ok := t.(tHelper); ok {
 		h.Helper()
 	}
@@ -259,13 +225,34 @@ func YAMLTreeContains(t TestingT, fs afero.Fs, expected, path string, msgAndArgs
 	return TreeContains(t, fs, ft, path, msgAndArgs...)
 }
 
+func assertFileContent(t TestingT, fs afero.Fs, path string, expected any, msgAndArgs []any, assertFunc func(assert.TestingT, any, any, ...any) bool) bool {
+	if !FileExists(t, fs, path, msgAndArgs...) {
+		return false
+	}
+
+	f, err := fs.Open(path)
+	if err != nil {
+		return assert.Fail(t, fmt.Sprintf("could not open %q: %s", path, err), msgAndArgs...)
+	}
+
+	defer f.Close() // nolint: errcheck
+
+	buf := new(bytes.Buffer)
+
+	if _, err := io.Copy(buf, f); err != nil {
+		return assert.Fail(t, fmt.Sprintf("could not read %q: %s", path, err), msgAndArgs...)
+	}
+
+	return assertFunc(t, expected, buf.String(), msgAndArgs...)
+}
+
 // nolint: funlen, cyclop
-func assertTree(t TestingT, fs afero.Fs, tree FileTree, root string, exhaustive bool, msgAndArgs ...interface{}) bool {
+func assertTree(t TestingT, fs afero.Fs, tree FileTree, root string, exhaustive bool, msgAndArgs ...any) bool {
 	root = filepath.Clean(root)
 	expectations := tree.Flatten("")
 	result := true
 
-	fail := func(failureMessage string, args ...interface{}) bool {
+	fail := func(failureMessage string, args ...any) bool {
 		result = false
 
 		return assert.Fail(t, fmt.Sprintf(failureMessage, args...), msgAndArgs...)

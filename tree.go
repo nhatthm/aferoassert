@@ -3,6 +3,7 @@ package aferoassert
 import (
 	"errors"
 	"fmt"
+	"maps"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -52,20 +53,18 @@ func (t FileTree) Flatten(root string) map[string]FileNode {
 	result := make(map[string]FileNode, len(t))
 
 	for _, n := range t {
-		for k, nc := range n.Flatten(root) {
-			result[k] = nc
-		}
+		maps.Copy(result, n.Flatten(root))
 	}
 
 	return result
 }
 
 // MarshalYAML satisfies yaml.Marshaler.
-func (t FileTree) MarshalYAML() (interface{}, error) { // nolint: unparam
+func (t FileTree) MarshalYAML() (any, error) { // nolint: unparam
 	cnt := len(t)
 
 	if cnt == 0 {
-		return map[string]interface{}{}, nil
+		return map[string]any{}, nil
 	}
 
 	raw := make([]FileNode, 0, cnt)
@@ -110,18 +109,16 @@ type FileNode struct {
 func (n FileNode) Flatten(root string) map[string]FileNode {
 	root = filepath.Join(root, n.Name)
 
-	result := make(map[string]FileNode)
+	result := make(map[string]FileNode, len(n.Children)+1)
 	result[root] = n
 
-	for k, v := range n.Children.Flatten(root) {
-		result[k] = v
-	}
+	maps.Copy(result, n.Children.Flatten(root))
 
 	return result
 }
 
 // MarshalYAML satisfies yaml.Marshaler.
-func (n FileNode) MarshalYAML() (interface{}, error) { // nolint: unparam
+func (n FileNode) MarshalYAML() (any, error) { // nolint: unparam
 	var nameBld strings.Builder
 
 	_, _ = nameBld.WriteString(n.Name)
@@ -316,7 +313,7 @@ func parseTag(tag string) (*os.FileMode, error) {
 
 	var result os.FileMode
 
-	for _, s := range strings.Split(tag, fileModeSeparator) {
+	for s := range strings.SplitSeq(tag, fileModeSeparator) {
 		m, err := fileModeFromString(s)
 		if err != nil {
 			return nil, err
