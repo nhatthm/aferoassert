@@ -1,11 +1,12 @@
 MODULE_NAME=aferoassert
 
-VENDOR_DIR = vendor
-
 GOLANGCI_LINT_VERSION ?= v2.13.0
 
 GO ?= go
 GOLANGCI_LINT ?= $(shell go env GOPATH)/bin/golangci-lint-$(GOLANGCI_LINT_VERSION)
+
+VENDOR_DIR = vendor
+GOROOT_DIR = $(shell $(GO) env GOROOT)
 
 GITHUB_OUTPUT ?= /dev/null
 
