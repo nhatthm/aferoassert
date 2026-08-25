@@ -36,9 +36,15 @@ tidy:
 	$(Q)$(GO) mod tidy
 
 .PHONY: lint
+ifeq ($(V),1)
+  GOLANGCI_LINT_FLAGS = -vvvv
+else
+  GOLANGCI_LINT_FLAGS =
+endif
+
 lint: $(GOLANGCI_LINT)
 	@printf -- "$(OK_COLOR)==> lint$(NO_COLOR)\n"
-	$(Q)$(GOLANGCI_LINT) run -c .golangci.yaml
+	$(Q)GOROOT=$(GOROOT_DIR) PATH="$(GOROOT_DIR)/bin:$$PATH" $(GOLANGCI_LINT) run -c .golangci.yaml --color always $(GOLANGCI_LINT_FLAGS)
 
 .PHONY: test
 test: test-unit
