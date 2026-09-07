@@ -6,7 +6,7 @@ require (
 	github.com/fatih/structtag v1.2.0
 	github.com/spf13/afero v1.15.0
 	github.com/stretchr/testify v1.12.1
-	go.nhat.io/aferomock v0.9.0
+	go.nhat.io/aferomock v0.9.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
