@@ -76,7 +76,7 @@ func TestExists(t *testing.T) {
 
 func TestExists_CouldNotStat(t *testing.T) {
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github").
+		fs.EXPECT().Stat(".github").
 			Return(nil, errors.New("stat error"))
 	})(t)
 
@@ -124,7 +124,7 @@ func TestNoExists(t *testing.T) {
 
 func TestNoExists_CouldNotStat(t *testing.T) {
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github").
+		fs.EXPECT().Stat(".github").
 			Return(nil, errors.New("stat error"))
 	})(t)
 
@@ -173,7 +173,7 @@ func TestFileExists(t *testing.T) {
 
 func TestFileExists_CouldNotStat(t *testing.T) {
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github").
+		fs.EXPECT().Stat(".github").
 			Return(nil, errors.New("stat error"))
 	})(t)
 
@@ -259,7 +259,7 @@ func TestDirExists(t *testing.T) {
 
 func TestDirExists_CouldNotStat(t *testing.T) {
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github").
+		fs.EXPECT().Stat(".github").
 			Return(nil, errors.New("stat error"))
 	})(t)
 
@@ -319,7 +319,7 @@ func TestPerm(t *testing.T) {
 
 func TestPerm_CouldNotStat(t *testing.T) {
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github").
+		fs.EXPECT().Stat(".github").
 			Return(nil, errors.New("stat error"))
 	})(t)
 
@@ -347,7 +347,7 @@ func TestFileContent_Success(t *testing.T) {
 
 func TestFileContent_CouldNotStat(t *testing.T) {
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github/file.txt").
+		fs.EXPECT().Stat(".github/file.txt").
 			Return(nil, errors.New("stat error"))
 	})(t)
 
@@ -357,7 +357,7 @@ func TestFileContent_CouldNotStat(t *testing.T) {
 
 func TestFileContent_FileNotExists(t *testing.T) {
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github/file.txt").
+		fs.EXPECT().Stat(".github/file.txt").
 			Return(nil, os.ErrNotExist)
 	})(t)
 
@@ -369,12 +369,12 @@ func TestFileContent_CouldNotOpen(t *testing.T) {
 	mockT := new(testing.T)
 
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github/file.txt").
+		fs.EXPECT().Stat(".github/file.txt").
 			Return(aferomock.MockFileInfo(func(i *aferomock.FileInfo) {
-				i.On("IsDir").Return(false)
+				i.EXPECT().IsDir().Return(false)
 			})(mockT), nil)
 
-		fs.On("Open", ".github/file.txt").
+		fs.EXPECT().Open(".github/file.txt").
 			Return(nil, errors.New("open error"))
 	})(t)
 
@@ -385,15 +385,15 @@ func TestFileContent_FileIsClosed(t *testing.T) {
 	mockT := new(testing.T)
 
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github/file.txt").
+		fs.EXPECT().Stat(".github/file.txt").
 			Return(aferomock.MockFileInfo(func(i *aferomock.FileInfo) {
-				i.On("IsDir").Return(false)
+				i.EXPECT().IsDir().Return(false)
 			})(mockT), nil)
 
 		f := mem.NewFileHandle(mem.CreateFile("file.txt"))
 		_ = f.Close() // nolint: errcheck
 
-		fs.On("Open", ".github/file.txt").
+		fs.EXPECT().Open(".github/file.txt").
 			Return(f, nil)
 	})(t)
 
@@ -423,7 +423,7 @@ func TestFileContentRegexp_Success(t *testing.T) {
 
 func TestFileContentRegexp_CouldNotStat(t *testing.T) {
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github/file.txt").
+		fs.EXPECT().Stat(".github/file.txt").
 			Return(nil, errors.New("stat error"))
 	})(t)
 
@@ -433,7 +433,7 @@ func TestFileContentRegexp_CouldNotStat(t *testing.T) {
 
 func TestFileContentRegexp_FileNotExists(t *testing.T) {
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github/file.txt").
+		fs.EXPECT().Stat(".github/file.txt").
 			Return(nil, os.ErrNotExist)
 	})(t)
 
@@ -445,12 +445,12 @@ func TestFileContentRegexp_CouldNotOpen(t *testing.T) {
 	mockT := new(testing.T)
 
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github/file.txt").
+		fs.EXPECT().Stat(".github/file.txt").
 			Return(aferomock.MockFileInfo(func(i *aferomock.FileInfo) {
-				i.On("IsDir").Return(false)
+				i.EXPECT().IsDir().Return(false)
 			})(mockT), nil)
 
-		fs.On("Open", ".github/file.txt").
+		fs.EXPECT().Open(".github/file.txt").
 			Return(nil, errors.New("open error"))
 	})(t)
 
@@ -461,16 +461,15 @@ func TestFileContentRegexp_FileIsClosed(t *testing.T) {
 	mockT := new(testing.T)
 
 	fs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github/file.txt").
+		fs.EXPECT().Stat(".github/file.txt").
 			Return(aferomock.MockFileInfo(func(i *aferomock.FileInfo) {
-				i.On("IsDir").Return(false)
+				i.EXPECT().IsDir().Return(false)
 			})(mockT), nil)
 
 		f := mem.NewFileHandle(mem.CreateFile("file.txt"))
 		_ = f.Close() // nolint: errcheck
 
-		fs.On("Open", ".github/file.txt").
-			Return(f, nil)
+		fs.EXPECT().Open(".github/file.txt").Return(f, nil)
 	})(t)
 
 	assert.False(t, aferoassert.FileContentRegexp(mockT, fs, ".github/file.txt", "'"))
@@ -485,6 +484,7 @@ func TestTreeEqual_Success(t *testing.T) {
     - test.yaml 'perm:"0644"'
     - update-registry.yaml
 - dependabot.yml
+- FUNDING.yml
 `
 
 	mockT := new(testing.T)
@@ -502,7 +502,7 @@ func TestTreeEqual_Fail_CouldNotMarshal(t *testing.T) {
 
 func TestTreeEqual_Fail_CouldNotWalk(t *testing.T) {
 	osFs := aferomock.MockFs(func(fs *aferomock.Fs) {
-		fs.On("Stat", ".github").
+		fs.EXPECT().Stat(".github").
 			Return(nil, errors.New("stat error"))
 	})(t)
 
