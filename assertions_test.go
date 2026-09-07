@@ -484,6 +484,7 @@ func TestTreeEqual_Success(t *testing.T) {
     - test.yaml 'perm:"0644"'
     - update-registry.yaml
 - dependabot.yml
+- FUNDING.yml
 `
 
 	mockT := new(testing.T)
